@@ -14,6 +14,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <!-- google font inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,15 +29,127 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
 
 
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="style.css">
-</head>
+ 
 
+</head>
 <body>
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5zvb9ZHusI6hMkT9JynEZWO9ts6OgyDc",
+    authDomain: "storyapp-89d90.firebaseapp.com",
+    databaseURL: "https://storyapp-89d90-default-rtdb.firebaseio.com",
+    projectId: "storyapp-89d90",
+    storageBucket: "storyapp-89d90.appspot.com",
+    messagingSenderId: "55108223485",
+    appId: "1:55108223485:web:5f1453110d7e630eabd994"
+  };
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM loaded, initializing Firebase...");
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const wrapper = document.getElementById("story-swiper-wrapper");
+
+    if (!wrapper) {
+      console.error("swiper-wrapper element not found in the DOM.");
+      return;
+    }
+
+    try {
+      console.log(" Fetching stories from Firebase path: 'animalenglishstories'...");
+const snapshot = await get(child(ref(db), "stories/animalstories"));
+
+      console.log(" Snapshot received:", snapshot);
+      console.log(" Exists:", snapshot.exists());
+
+      if (!snapshot.exists()) {
+        console.warn("No data found at this path.");
+        return;
+      }
+
+      const stories = snapshot.val();
+      console.log(` Successfully fetched ${stories.length} stories.`);
+
+      wrapper.innerHTML = ""; 
+
+      stories.forEach((story, index) => {
+        const title = story.title || "No Title Found";
+        const image = story.image || "default.png";
+        const link = story.link || "#";
+
+        console.log(` Slide #${index + 1}`);
+        console.log(" Title:", title);
+        console.log("Image:", image);
+        console.log(" Link:", link);
+
+        const slide = document.createElement("div");
+        slide.className = "swiper-slide";
+        slide.innerHTML = `
+          <div class="video-container">
+            <img src="./images/${image}" alt="${title}" />
+            <div class="play-icon">
+              <a href="${link}" target="_blank">
+                <i class="fa-regular fa-circle-play"></i>
+              </a>
+            </div>
+          </div>
+          <div class="story-title" style="text-align:center; font-weight:bold; margin-top:10px; color:#333;">
+            ${title}
+          </div>
+        `;
+
+        wrapper.appendChild(slide);
+      });
+
+      const totalSlides = wrapper.children.length;
+      console.log(` Total slides added: ${totalSlides}`);
+
+      if (totalSlides >= 1) {
+        console.log(" Initializing Swiper... Loop enabled:", totalSlides >= 3);
+        new Swiper(".mySwiper", {
+          slidesPerView: 3,
+          spaceBetween: 30,
+          loop: totalSlides >= 3,
+          autoplay: {
+            delay: 2500,
+            disableOnInteraction: false
+          },
+          breakpoints: {
+            0: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 }
+          }
+        });
+      } else {
+        console.warn("Not enough slides to initialize Swiper.");
+      }
+    } catch (err) {
+      console.error("Error fetching stories:", err);
+    }
+  });
+</script>
+
+
+  
+  <iframe width="560" height="315" 
+        src="https://www.youtube.com/embed/ysz5S6PUM-U" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+</iframe>
+
     <section class="head">
         <div class="content">
             <nav class="navbar ">
@@ -101,80 +215,32 @@
         </div>
     </section>
 
-    <section class="story-section">
-        <h2>Choose Your Story</h2>
-        <p class="subtitle">
-            We belive that reading together is not just about words on page ,it's<br>
-            about sharing experiences ,learning and growing together.
-        </p>
-        <p class="subtitle">
-            Join us on literary advanture where story come to life ,families bond<br>
-            over the magic of reading.
-        </p>
+  <section class="story-section">
+  <h2>Choose Your Story</h2>
+  <p class="subtitle">
+    We believe that reading together is not just about words on a page,<br>
+    it's about sharing experiences, learning, and growing together.
+  </p>
+  <p class="subtitle">
+    Join us on a literary adventure where stories come to life,<br>
+    and families bond over the magic of reading.
+  </p>
 
-        <!-- Swiper -->
-        <div class="swiper mySwiper">
-            <div class="swiper-wrapper">
-                <!-- 6 Slides -->
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/rabbit.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>The Clever Rabbit</p>
-                </div>
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/monkey.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>The Clever Monkey</p>
-                </div>
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/shipboy.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>The Pirates</p>
-                </div>
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/elephant.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>Jungle Story</p>
-                </div>
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/boywithdog.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>Magic World</p>
-                </div>
-                <div class="swiper-slide">
-                    <div class="video-container">
-                        <img src="./images/butterfly.jpg" alt="The Clever Monkey">
-                        <div class="play-icon">
-                            <i class="fa-regular fa-circle-play"></i>
-                        </div>
-                    </div>
-                    <p>Night Tales</p>
-                </div>
-            </div>
-        </div>
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper" id="story-swiper-wrapper">
 
-        <button class="see-stories-btn">SEE ALL STORIES</button>
-    </section>
+        <img src="${imageUrl}" />
+
+    </div>
+  </div>
+
+  <button class="see-stories-btn">SEE ALL STORIES</button>
+</section>
+
+
+               
+
+
 
     <section class="popular-section">
         <h2>See All Popular Stories</h2>
